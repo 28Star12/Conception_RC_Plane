@@ -17,6 +17,7 @@ NAV_ITEMS = [
     ("Aerodynamics", "/aero", "mdi:airplane", "aero"),
     ("Constraints", "/constraints", "mdi:chart-scatter-plot", "constraints"),
     ("Geometry", "/geometry", "mdi:cube-outline", "geometry"),
+    ("3D Builder", "/builder", "mdi:cube-scan", "builder"),
     ("Stability", "/stability", "mdi:scale-balance", "stability"),
     ("Power & Weight", "/power", "mdi:battery-charging", "power"),
     ("Loads", "/loads", "mdi:chart-bell-curve-cumulative", "loads"),
