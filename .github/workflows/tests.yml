@@ -26,8 +26,12 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Install project and test dependencies
-        run: uv sync --extra dev
+      - name: Install project, web UI and test dependencies
+        run: uv sync --extra dev --extra webui
 
       - name: Run test suite
         run: uv run pytest -q
+
+      - name: Import Dash application and registered pages
+        working-directory: webui
+        run: uv run --project .. python -c "import app; import pages.builder; print('Dash app and 3D builder loaded')"
