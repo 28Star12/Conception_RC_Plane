@@ -1,0 +1,70 @@
+{
+  "catalog_id": "kingtech-k260g5",
+  "catalog_version": 1,
+  "name": "KingTech K-260G5",
+  "category": "propulsion",
+  "manufacturer": "KingTech Turbines Co., Ltd.",
+  "model": "K-260G5",
+  "component": {
+    "component_id": "kingtech-k260g5",
+    "name": "KingTech K-260G5 turbine",
+    "category": "propulsion",
+    "mass_kg": 2.2,
+    "position_m": [0.0, 0.0, 0.0],
+    "rotation_deg": [0.0, 0.0, 0.0],
+    "center_of_mass_offset_m": [0.0, 0.0, 0.0],
+    "geometry": "cylinder_x",
+    "dimensions_m": [0.299, 0.12, 0.12],
+    "manufacturer": "KingTech Turbines Co., Ltd.",
+    "model": "K-260G5",
+    "mass_source": "manufacturer",
+    "source_url": "https://kingtechtw.com/product/k260g5/"
+  },
+  "manufacturer_specifications": {
+    "diameter_m": 0.12,
+    "length_m": 0.299,
+    "mass_kg": 2.2,
+    "maximum_rpm": 112000,
+    "maximum_thrust_kgf": 26.0,
+    "maximum_thrust_temperature_c": 15.0,
+    "maximum_thrust_n_calculated": 254.97,
+    "maximum_egt_c": 750,
+    "fuel_consumption_g_min": 760,
+    "approved_fuels_listed": ["Diesel", "Jet A-1", "Kerosene"],
+    "lubrication_percent": 5,
+    "pump_type": "Digital SBUS brushless pump KP1000DP",
+    "battery_voltage_v": 11.1,
+    "minimum_battery_capacity_ah": 2.2,
+    "minimum_battery_c_rating": 35,
+    "start_time_seconds": {"minimum": 10, "maximum": 15},
+    "maintenance_interval_hours": 25
+  },
+  "geometry_notes": [
+    "The simple cylindrical envelope is a visualization and preliminary inertia approximation only.",
+    "The catalogue does not contain a manufacturer CAD model or measured centre-of-gravity offset.",
+    "The supplied 3D envelope does not represent mounting brackets, connectors, pump, ECU, wiring or fuel accessories."
+  ],
+  "data_quality": {
+    "mass": "manufacturer_published",
+    "dimensions": "manufacturer_published",
+    "performance": "manufacturer_published",
+    "maximum_thrust_n": "calculated_from_manufacturer_kgf",
+    "intrinsic_inertia": "estimated_from_homogeneous_cylinder_envelope",
+    "component_cg_offset": "unknown_assumed_at_origin",
+    "last_verified": "2026-11-19"
+  },
+  "sources": [
+    {
+      "publisher": "KingTech Turbines Co., Ltd.",
+      "url": "https://kingtechtw.com/product/k260g5/",
+      "accessed": "2026-11-19",
+      "purpose": "Manufacturer specifications"
+    },
+    {
+      "publisher": "KingTech Turbine (European product listing)",
+      "url": "https://kingtechturbine.lu/K260G5_1",
+      "accessed": "2026-11-19",
+      "purpose": "Cross-check of K-260G5 specifications"
+    }
+  ]
+}
