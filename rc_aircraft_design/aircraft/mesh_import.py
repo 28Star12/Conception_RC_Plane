@@ -119,7 +119,7 @@ def parse_stl(
         except UnicodeDecodeError as exc:
             raise ValueError("The file is neither a valid binary nor ASCII STL") from exc
         matches = re.findall(
-            r"vertex\\s+([-+0-9.eE]+)\\s+([-+0-9.eE]+)\\s+([-+0-9.eE]+)",
+            r"vertex\s+([-+0-9.eE]+)\s+([-+0-9.eE]+)\s+([-+0-9.eE]+)",
             text,
             flags=re.IGNORECASE,
         )
