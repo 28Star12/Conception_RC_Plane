@@ -165,12 +165,12 @@ def register_callbacks(app: dash.Dash):
     # ── Sidebar active-link highlight ────────────────────────────────
     nav_ids = [
         "nav-dashboard", "nav-config", "nav-aero", "nav-constraints",
-        "nav-geometry", "nav-stability", "nav-power", "nav-loads",
+        "nav-geometry", "nav-builder", "nav-stability", "nav-power", "nav-loads",
         "nav-workbench", "nav-manufacturing", "nav-export",
     ]
     nav_paths = [
         "/", "/config", "/aero", "/constraints",
-        "/geometry", "/stability", "/power", "/loads",
+        "/geometry", "/builder", "/stability", "/power", "/loads",
         "/workbench", "/manufacturing", "/export",
     ]
 
