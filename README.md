@@ -53,7 +53,8 @@ python -m venv .venv && .venv/bin/pip install -e .. && .venv/bin/pip install das
 | **Configuration** | Edit mission & airfoil params, run full pipeline |
 | **Aerodynamics** | Cl/Cd polars, speed–lift contour, V-n diagram, climb curves — all standalone |
 | **Constraints** | Interactive T/W vs W/S envelope with optimum point |
-| **Geometry** | 3D Plotly aircraft view + 2D planforms, CG/NP markers, MAC tables — export to HTML |\n| **3D Builder** | Interactive component assembly, placement/orientation editing, STL import and JSON project save/load |
+| **Geometry** | 3D Plotly aircraft view + 2D planforms, CG/NP markers, MAC tables — export to HTML |
+| **3D Builder** | Interactive component assembly, placement/orientation editing, STL import and JSON project save/load |
 | **Stability** | Gauge charts for Vh, Vv, static margin, spiral stability |
 | **Power** | Sankey power-flow diagram, battery/motor/propeller sizing |
 | **Loads** | Spanwise lift, shear, bending distributions |
