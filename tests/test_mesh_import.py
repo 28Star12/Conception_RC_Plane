@@ -50,7 +50,7 @@ def test_parse_stl_centres_mesh_and_converts_millimetres(factory) -> None:
     assert vertices.shape == (4, 3)
     assert faces.shape == (4, 3)
     assert result["bounds_m"]["dimensions"] == pytest.approx([0.001, 0.001, 0.001])
-    assert vertices.mean(axis=0) == pytest.approx([0.0, 0.0, 0.0])
+    assert (vertices.min(axis=0) + vertices.max(axis=0)) / 2.0 == pytest.approx([0.0, 0.0, 0.0])
     assert result["source_units"] == "mm"
 
 
