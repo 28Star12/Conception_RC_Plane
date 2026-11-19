@@ -30,7 +30,7 @@ from rc_aircraft_design.aircraft import (
 )
 from rc_aircraft_design.aircraft.mesh_import import (
     MAX_UPLOAD_BYTES,
-    parse_cad_step_iges,
+    parse_step_iges,
     parse_stl,
 )
 
@@ -567,7 +567,7 @@ def mutate_project(
             if extension == ".stl":
                 mesh = parse_stl(raw, units=import_units or "mm")
             elif extension in {".step", ".stp", ".iges", ".igs"}:
-                mesh = parse_cad_step_iges(
+                mesh = parse_step_iges(
                     raw, import_filename, iges_units=import_units or "mm"
                 )
             else:
