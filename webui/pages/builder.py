@@ -36,7 +36,6 @@ from rc_aircraft_design.aircraft.mesh_import import (
 dash.register_page(__name__, path="/builder", title="3D Builder", name="3D Builder")
 
 PALETTE = ["#2563eb", "#16a34a", "#d97706", "#7c3aed", "#0891b2", "#db2777"]
-MAX_PROJECT_JSON_BYTES = 20 * 1024 * 1024
 
 
 def _empty_project() -> dict[str, Any]:
@@ -172,6 +171,11 @@ def _build_scene(
 
         if geometry is not None:
             vertices, faces = geometry
+            if component.component_id in mesh_assets and component.dimensions_m is not None:
+                source_dimensions = np.asarray(mesh_assets[component.component_id]["bounds_m"]["dimensions"], dtype=float)
+                target_dimensions = np.asarray(component.dimensions_m, dtype=float)
+                if np.all(source_dimensions > 0):
+                    vertices = vertices * (target_dimensions / source_dimensions)
             transformed = vertices @ rotation.T + position
             figure.add_trace(go.Mesh3d(
                 x=transformed[:, 0],
@@ -404,6 +408,12 @@ def layout(**kwargs):
                         dbc.Input(id="builder-edit-name", value="", type="text", className="mb-2"),
                         dbc.Label("Mass (kg)"),
                         dbc.Input(id="builder-edit-mass", value=0, type="number", min=0, step=0.01, className="mb-2"),
+                        dbc.Label("Dimensions X / Y / Z (m)"),
+                        dbc.Row([
+                            dbc.Col(dbc.Input(id="builder-dim-x", value=0.1, type="number", min=0.001, step=0.01), width=4),
+                            dbc.Col(dbc.Input(id="builder-dim-y", value=0.1, type="number", min=0.001, step=0.01), width=4),
+                            dbc.Col(dbc.Input(id="builder-dim-z", value=0.1, type="number", min=0.001, step=0.01), width=4),
+                        ], className="g-1 mb-2"),
                         dbc.Label("Position X / Y / Z (m)"),
                         dbc.Row([
                             dbc.Col(dbc.Input(id="builder-pos-x", value=0, type="number", step=0.01), width=4),
@@ -475,7 +485,7 @@ def mutate_project(
     add_catalog_clicks, add_box_clicks, apply_clicks, remove_clicks,
     import_contents, load_contents, project_data, catalog_id,
     box_name, box_mass, box_dx, box_dy, box_dz, selected_id, aircraft_name,
-    edit_name, edit_mass, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z,
+    edit_name, edit_mass, dim_x, dim_y, dim_z, pos_x, pos_y, pos_z, rot_x, rot_y, rot_z,
     import_filename, import_units, import_mass, load_filename,
 ):
     trigger = ctx.triggered_id
@@ -487,7 +497,7 @@ def mutate_project(
             first_id = assembly.components[0].component_id if assembly.components else None
             return _payload(assembly, assets), dbc.Alert(
                 f"Project loaded: {assembly.name}", color="success", duration=5000
-            ), first_id
+            ), first_id, assembly.name
 
         assembly, assets = _project_parts(project_data or _empty_project())
         existing = {item.component_id for item in assembly.components}
@@ -507,7 +517,7 @@ def mutate_project(
             return _payload(assembly, assets), dbc.Alert(
                 f"Added {component.name}. Set its installation position and verify its mass budget.",
                 color="success", duration=6000,
-            ), component_id
+            ), component_id, assembly.name
 
         if trigger == "builder-add-box":
             base = _component_slug(box_name or "custom-component")
@@ -525,7 +535,7 @@ def mutate_project(
             return _payload(assembly, assets), dbc.Alert(
                 f"Added {component.name}. Its shape is a solid rectangular-box approximation.",
                 color="success", duration=5000,
-            ), component_id
+            ), component_id, assembly.name
 
         if trigger == "builder-apply-transform":
             if not selected_id:
@@ -536,6 +546,8 @@ def mutate_project(
             if updated_mass != current["mass_kg"]:
                 current["mass_source"] = "estimated"
             current["mass_kg"] = updated_mass
+            if current.get("dimensions_m") is not None:
+                current["dimensions_m"] = [float(dim_x), float(dim_y), float(dim_z)]
             current["position_m"] = [float(pos_x), float(pos_y), float(pos_z)]
             current["rotation_deg"] = [float(rot_x), float(rot_y), float(rot_z)]
             updated = Component.from_dict(current)
@@ -546,7 +558,7 @@ def mutate_project(
             return _payload(assembly, assets), dbc.Alert(
                 f"Updated {updated.name}. Mass properties will be recomputed automatically.",
                 color="success", duration=4000,
-            ), selected_id
+            ), selected_id, assembly.name
 
         if trigger == "builder-remove-component":
             if not selected_id:
@@ -556,7 +568,7 @@ def mutate_project(
             next_id = assembly.components[0].component_id if assembly.components else None
             return _payload(assembly, assets), dbc.Alert(
                 f"Removed {removed.name}", color="warning", duration=4000
-            ), next_id
+            ), next_id, assembly.name
 
         if trigger == "builder-import-upload":
             if not import_filename:
@@ -595,19 +607,22 @@ def mutate_project(
             )
             return _payload(assembly, assets), dbc.Alert(
                 note, color="success", duration=10000
-            ), component_id
+            ), component_id, assembly.name
 
-        return no_update, no_update, no_update
+        return no_update, no_update, no_update, no_update
 
     except Exception as exc:
         return no_update, dbc.Alert(
             f"Could not update the assembly: {exc}", color="danger"
-        ), no_update
+        ), no_update, no_update
 
 
 @callback(
     Output("builder-edit-name", "value"),
     Output("builder-edit-mass", "value"),
+    Output("builder-dim-x", "value"),
+    Output("builder-dim-y", "value"),
+    Output("builder-dim-z", "value"),
     Output("builder-pos-x", "value"),
     Output("builder-pos-y", "value"),
     Output("builder-pos-z", "value"),
@@ -620,12 +635,12 @@ def mutate_project(
 )
 def populate_component_editor(selected_id, project_data):
     if not selected_id or not project_data:
-        return "", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "No component selected"
+        return "", 0.0, 0.1, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "No component selected"
     try:
         assembly, assets = _project_parts(project_data)
         component = assembly.get_component(selected_id)
     except (KeyError, ValueError):
-        return "", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "Component not found"
+        return "", 0.0, 0.1, 0.1, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "Component not found"
 
     geometry_note = "Imported mesh · bounding-box inertia approximation" if selected_id in assets else component.geometry
     source_note = f"Mass source: {component.mass_source}"
@@ -634,6 +649,7 @@ def populate_component_editor(selected_id, project_data):
     return (
         component.name,
         component.mass_kg,
+        *(component.dimensions_m or (0.1, 0.1, 0.1)),
         component.position_m[0],
         component.position_m[1],
         component.position_m[2],
