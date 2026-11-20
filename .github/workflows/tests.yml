@@ -23,6 +23,26 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Validate distributable wheel
+        run: |
+          python -m pip wheel . --no-deps --wheel-dir /tmp/rc-aircraft-wheel
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          wheel = next(Path("/tmp/rc-aircraft-wheel").glob("*.whl"))
+          with ZipFile(wheel) as archive:
+              matches = [
+                  name for name in archive.namelist()
+                  if name.endswith("catalog_data/kingtech_k260g5.json")
+              ]
+          assert len(matches) == 1, (
+              "Expected the KingTech catalogue JSON exactly once in the wheel; "
+              f"found {len(matches)} entries: {matches}"
+          )
+          print(f"Wheel package data validated: {matches[0]}")
+          PY
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
