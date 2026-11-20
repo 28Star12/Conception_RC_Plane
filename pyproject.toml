@@ -28,8 +28,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["rc_aircraft_design"]
 
-[tool.hatch.build.targets.wheel.force-include]
-"rc_aircraft_design/aircraft/catalog_data" = "rc_aircraft_design/aircraft/catalog_data"
+# JSON catalogue files are included automatically because they live inside
+# the rc_aircraft_design package. Do not force-include catalog_data here:
+# doing so adds the same file twice to the wheel archive.
 
 [tool.ruff]
 line-length = 100
